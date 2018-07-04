@@ -28,9 +28,8 @@ class OpenLattice(object):
         self.coords_pts = np.zeros((self.L, 2), np.float64)
         for i in range(self.L):
             coords = self.index_to_position(i)
-            self.coords_pts[i, 0] = np.sqrt(3)*(coords[0]
-                                                + coords[1]/2 + coords[2]/2)
-            self.coords_pts[i, 1] = 3/2*coords[1] + 1/2*coords[2]
+            self.coords_pts[i, 0] = 3/2*(coords[0] + coords[1]) + coords[2]
+            self.coords_pts[i, 1] = np.sqrt(3)/2*(-coords[0] + coords[1])
 
         self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
         self.first_neigh_B = np.array([[0, 0, -1], [1, 0, -1], [0, 1, -1]])
