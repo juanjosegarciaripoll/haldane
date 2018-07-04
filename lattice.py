@@ -24,17 +24,18 @@ class OpenLattice(object):
         self.Ny = Ny
         self.Np = Np
 
-        self.L = 2*(Nx+1)*(Ny+1)-2
+        self.L = 2*Nx*Ny
         self.coords_pts = np.zeros((self.L, 2), np.float64)
         for i in range(self.L):
             coords = self.index_to_position(i)
-            self.coords_pts[i, 0] = 3/2*(coords[0] + coords[1]) + coords[2]
-            self.coords_pts[i, 1] = np.sqrt(3)/2*(- coords[0] + coords[1])
+            self.coords_pts[i, 0] = np.sqrt(3)*(coords[0]
+                                                + coords[1]/2 + coords[2]/2)
+            self.coords_pts[i, 1] = 3/2*coords[1] + 1/2*coords[2]
 
-        self.first_neigh_A = np.array([[0, -1, 1], [-1, 0, 1], [0, 0, 1]])
-        self.first_neigh_B = np.array([[0, 1, -1], [1, 0, -1], [0, 0, -1]])
-        self.second_neigh = np.array([[-1, 1, 0], [0, 1, 0], [1, 0, 0],
-                                      [1, -1, 0], [0, -1, 0], [-1, 0, 0]])
+        self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
+        self.first_neigh_B = np.array([[0, 0, -1], [1, 0, -1], [0, 1, -1]])
+        self.second_neigh = np.array([[0, 1, 0], [1, 0, 0], [1, -1, 0],
+                                      [0, -1, 0], [-1, 0, 0], [-1, 1, 0]])
 
     def position_to_index(self, pos):
         """Return the index of a position [x, y, z].
@@ -48,28 +49,28 @@ class OpenLattice(object):
             i (int): index of the position.
 
         Examples:
-            >>> lat = OpenLattice(3, 3, 18)
+            >>> lat = OpenLattice(4, 4, 0)
             >>> lat.position_to_index([0, 0, 0])
-            -1
-            >>> lat.position_to_index([0, 0, 1])
             0
-            >>> lat.position_to_index([1, 0, 0])
+            >>> lat.position_to_index([0, 0, 1])
             1
+            >>> lat.position_to_index([1, 0, 0])
+            2
             >>> lat.position_to_index([2, 0, 1])
-            4
+            5
             >>> lat.position_to_index([3, 1, 0])
-            13
+            14
             >>> lat.position_to_index([1, 2, 1])
-            18
+            19
             >>> lat.position_to_index([1, 3, 0])
-            25
+            26
             >>> lat.position_to_index([3, 3, 0])
-            29
-            >>> lat.position_to_index([3, 3, 1])
             30
+            >>> lat.position_to_index([3, 3, 1])
+            31
         """
         x, y, n = pos
-        return 2*x + n + 2*(self.Nx+1)*y-1
+        return 2*x + n + 2*self.Nx*y
 
     def index_to_position(self, i):
         """Return a list with the coordinates of a position.
@@ -83,111 +84,25 @@ class OpenLattice(object):
                 n: position within the unit cell: 0 for A, 1 for B.
 
         Examples:
-            >>> lat = OpenLattice(3, 3, 18)
-            >>> lat.index_to_position(0)
-            array([0, 0, 1])
+            >>> lat = OpenLattice(4, 4, 0)
             >>> lat.index_to_position(1)
+            array([0, 0, 1])
+            >>> lat.index_to_position(2)
             array([1, 0, 0])
-            >>> lat.index_to_position(4)
+            >>> lat.index_to_position(5)
             array([2, 0, 1])
-            >>> lat.index_to_position(13)
+            >>> lat.index_to_position(14)
             array([3, 1, 0])
-            >>> lat.index_to_position(18)
+            >>> lat.index_to_position(19)
             array([1, 2, 1])
-            >>> lat.index_to_position(25)
+            >>> lat.index_to_position(26)
             array([1, 3, 0])
-            >>> lat.index_to_position(29)
+            >>> lat.index_to_position(30)
             array([3, 3, 0])
         """
-        i += 1
         n = i%2
         i >>= 1
-        x = i%(self.Ny+1)
-        y = i//(self.Ny+1)
+        x = i%self.Ny
+        y = i//self.Ny
 
         return np.array([x, y, n])
-
-
-class PeriodicLattice(object):
-    """Define a honeycomb lattice with periodic boundary conditions.
-
-    Attributes:
-        Nx, Ny (int): length and width in unit cells of the lattice.
-        Np (int of float): number of particles in the lattice.
-
-        N (int): number of unit cells.
-        L (int): total number of sites/lattice length.
-
-        l_points (1darray of ints): indices of every spinless site.
-        L_points (1darray of ints): indices of every point in the
-            lattice with spin.
-        unit_cells (1darray of ints): indices of every unit cell's
-            starting point.
-    """
-
-    def __init__(self, Nx, Ny, Np, has_pbc=True):
-        """Initialize class."""
-        self.Nx = Nx
-        self.Ny = Ny
-        self.has_pbc = has_pbc
-        self.N = Nx*Ny
-        self.L = 4*self.N
-        self.Np = Np
-
-        self.L_points = [i for i in range(self.L)]
-        self.unit_cells = [2*i for i in range(self.N)]
-
-        # List with the vectors connecting the first and second neighbors.
-        self.first_neigh_A = np.array([[1, -1, -1, 0], [0, 0, -1, 0],
-                                       [1, 0, -1, 0]])
-        self.first_neigh_B = np.array([[-1, 1, 1, 0], [0, 0, 1, 0],
-                                       [-1, 0, 1, 0]])
-        # The second neighbor vectors are equal for sublattices A and B.
-        self.second_neigh = np.array([[-1, 1, 0, 0], [0, 1, 0, 0],
-                                      [1, 0, 0, 0], [1, -1, 0, 0],
-                                      [0, -1, 0, 0], [-1, 0, 0, 0]])
-
-    def position_to_index(self, pos):
-        """Return the index of a position [x, y, z, s].
-
-        Args:
-            pos: 1darray with the coordinates: [x, y, n, s]. The spin
-                may be excluded from the list and defaults to s=0.
-                x, y (int): coordinates of the unit cell.
-                n (int): position within the unit cell: 0 for B, 1 for
-                    A.
-                s (int): spin of the position = {0, 1}.
-
-        Returns:
-            i (int): index of the position.
-        """
-        x = pos[0]%self.Nx
-        y = pos[1]%self.Ny
-        n = pos[2]%2
-        s = pos[3]
-
-        return n + 2*(x + self.Nx*y) + 2*self.N*s
-
-    def index_to_position(self, i):
-        """Return a list with the coordinates of a position.
-
-        Args:
-            i (int): index.
-
-        Returns:
-            (1darray of ints): [x, y, n, s], where:
-                x, y: coordinates of the unit cell.
-                n: position within the unit cell: 0 for B, 1 for A.
-                s: spin of the position = {0, 1}.
-        """
-        # Spin.
-        s = 0 if i < 2*self.N else 1
-        i //= 2*self.N
-        # Position within the unit cell.
-        n = i%2
-        i >>= 1
-        # Coordinates of the unit cell.
-        x = i%self.Nx
-        y = (i-x)//self.Nx
-
-        return np.array([x, y, n, s])
