@@ -50,15 +50,38 @@ class HaldaneHamiltonianHoppingMatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.A[30, 31], self.t1)
 
     def test_second_neighbour_hoppings(self):
-        self.assertAlmostEqual(self.A[2, 0], self.t2)
-        self.assertAlmostEqual(self.A[0, 2], np.conj(self.t2))
-        self.assertAlmostEqual(self.A[14, 12], self.t2)
-        self.assertAlmostEqual(self.A[12, 14], np.conj(self.t2))
-        self.assertAlmostEqual(self.A[10, 18], self.t2)
-        self.assertAlmostEqual(self.A[18, 10], np.conj(self.t2))
-        self.assertAlmostEqual(self.A[27, 19], self.t2)
+        self.assertAlmostEqual(self.A[2, 0], np.conj(self.t2))
+        self.assertAlmostEqual(self.A[0, 2], self.t2)
+        self.assertAlmostEqual(self.A[14, 12], np.conj(self.t2))
+        self.assertAlmostEqual(self.A[12, 14], self.t2)
+        self.assertAlmostEqual(self.A[10, 18], np.conj(self.t2))
+        self.assertAlmostEqual(self.A[18, 10], self.t2)
         self.assertAlmostEqual(self.A[19, 27], np.conj(self.t2))
-        self.assertAlmostEqual(self.A[12, 6], self.t2)
-        self.assertAlmostEqual(self.A[6, 12], np.conj(self.t2))
-        self.assertAlmostEqual(self.A[13, 19], self.t2)
+        self.assertAlmostEqual(self.A[27, 19], self.t2)
+        self.assertAlmostEqual(self.A[12, 6], np.conj(self.t2))
+        self.assertAlmostEqual(self.A[6, 12], self.t2)
         self.assertAlmostEqual(self.A[19, 13], np.conj(self.t2))
+        self.assertAlmostEqual(self.A[13, 19], self.t2)
+
+    def test_zero_terms(self):
+        """Test that the zeros in the hopping matrix are right."""
+        self.assertAlmostEqual(
+            np.linalg.norm(self.A[:, 0]),
+            np.sqrt(26**2 + self.t1**2 + 2*np.abs(self.t2)**2)
+            )
+        self.assertAlmostEqual(
+            np.linalg.norm(self.A[:, 1]),
+            np.sqrt(15**2 + 3*self.t1**2 + 2*np.abs(self.t2)**2)
+            )
+        self.assertAlmostEqual(
+            np.linalg.norm(self.A[:, 11]),
+            np.sqrt(3*self.t1**2 + 6*np.abs(self.t2)**2)
+            )
+        self.assertAlmostEqual(
+            np.linalg.norm(self.A[:, 17]),
+            np.sqrt(3**2 + 3*self.t1**2 + 4*np.abs(self.t2)**2)
+            )
+        self.assertAlmostEqual(
+            np.linalg.norm(self.A[:, 27]),
+            np.sqrt(6**2 + 2*self.t1**2 + 4*np.abs(self.t2)**2)
+            )
