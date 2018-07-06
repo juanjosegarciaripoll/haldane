@@ -51,9 +51,9 @@ class OpenHamiltonian(object):
         """Compute the hopping matrix A."""
         # Diagonal terms.
         # Harmonic trap.
-        center = (self.lattice.coords_pts[0] + self.lattice.coords_pts[-1])/2
+        center = (self.lattice.xy_coords[0] + self.lattice.xy_coords[-1])/2
         for i in range(self.lattice.L):
-            i_coords = self.lattice.coords_pts[i]
+            i_coords = self.lattice.xy_coords[i]
             self.A[i, i] += trap_potential*np.linalg.norm(i_coords - center)**2
 
         # Lattice imbalance.

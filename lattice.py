@@ -9,7 +9,11 @@ class OpenLattice(object):
     Attributes:
         Nx, Ny (int): length and width in unit cells of the lattice.
         L (int): total number of sites/lattice length.
-        coords_pts (2darray of floats): coordinates of every point.
+        lat_coords (2darray of ints): lattice coordinates of every
+            point (x, y posititions and displacement inside the unit
+            cell).
+        xy_coords (2darray of floats): real space coordinates of every
+            point.
         first_neigh_A, first_neigh_B (list of 1darrays of ints):
             directions of the hopping amplitudes to first neighbors.
         second_neigh (list of 1darrays of ints): directions of the
@@ -23,11 +27,18 @@ class OpenLattice(object):
         self.Ny = Ny
 
         self.L = 2*Nx*Ny
-        self.coords_pts = np.zeros((self.L, 2), np.float64)
-        for i in range(self.L):
-            coords = self.index_to_position(i)
-            self.coords_pts[i, 0] = 3/2*(coords[0] + coords[1]) + coords[2]
-            self.coords_pts[i, 1] = np.sqrt(3)/2*(-coords[0] + coords[1])
+        self.lat_coords = np.array(
+            [np.kron(np.ones(self.Ny, np.int64),
+                     np.kron(np.arange(self.Nx), np.ones(2, np.int64))),
+             np.kron(np.arange(self.Ny), np.ones(2*self.Nx, np.int64)),
+             np.kron(np.ones(self.Nx*self.Ny, np.int64),
+                     np.array([0, 1], np.int64))
+             ], np.int64).T
+        self.xy_coords = np.array([
+            (3/2*(self.lat_coords[:, 0] + self.lat_coords[:, 1])
+             + self.lat_coords[:, 2]),
+            -np.sqrt(3)/2*(-self.lat_coords[:, 0] + self.lat_coords[:, 1])
+        ]).T
 
         self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
         self.first_neigh_B = np.array([[0, 0, -1], [1, 0, -1], [0, 1, -1]])
@@ -46,7 +57,7 @@ class OpenLattice(object):
             i (int): index of the position.
 
         Examples:
-            >>> lat = OpenLattice(4, 4, 0)
+            >>> lat = OpenLattice(4, 4)
             >>> lat.position_to_index([0, 0, 0])
             0
             >>> lat.position_to_index([0, 0, 1])
@@ -65,9 +76,16 @@ class OpenLattice(object):
             30
             >>> lat.position_to_index([3, 3, 1])
             31
+            >>> lat.position_to_index([-3, 3, 1])
+            -1
+            >>> lat.position_to_index([5, 2, 1])
+            -1
         """
-        x, y, n = pos
-        return 2*x + n + 2*self.Nx*y
+        tmp = np.linalg.norm(self.lat_coords - pos, axis=1)
+        if np.any(np.isclose(tmp, 0)):
+            return np.argmin(tmp)
+        else:
+            return -1
 
     def index_to_position(self, i):
         """Return a list with the coordinates of a position.
@@ -81,7 +99,7 @@ class OpenLattice(object):
                 n: position within the unit cell: 0 for A, 1 for B.
 
         Examples:
-            >>> lat = OpenLattice(4, 4, 0)
+            >>> lat = OpenLattice(4, 4)
             >>> lat.index_to_position(1)
             array([0, 0, 1])
             >>> lat.index_to_position(2)
@@ -97,9 +115,4 @@ class OpenLattice(object):
             >>> lat.index_to_position(30)
             array([3, 3, 0])
         """
-        n = i%2
-        i >>= 1
-        x = i%self.Ny
-        y = i//self.Ny
-
-        return np.array([x, y, n])
+        return self.lat_coords[i]

@@ -11,7 +11,7 @@ class HaldaneHamiltonianHoppingMatrixTestCase(unittest.TestCase):
     """Test the hopping matrix of Haldane's Hamiltonian."""
 
     def setUp(self):
-        lattice = OpenLattice(4, 4, 0)
+        lattice = OpenLattice(4, 4)
         # Hamiltonian parameters.
         t1 = 1
         t2 = 0.1
