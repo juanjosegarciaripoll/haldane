@@ -8,7 +8,6 @@ class OpenLattice(object):
 
     Attributes:
         Nx, Ny (int): length and width in unit cells of the lattice.
-        Np (int of float): number of particles in the lattice.
         L (int): total number of sites/lattice length.
         coords_pts (2darray of floats): coordinates of every point.
         first_neigh_A, first_neigh_B (list of 1darrays of ints):
@@ -18,11 +17,10 @@ class OpenLattice(object):
 
     """
 
-    def __init__(self, Nx, Ny, Np):
+    def __init__(self, Nx, Ny):
         """Initialize class."""
         self.Nx = Nx
         self.Ny = Ny
-        self.Np = Np
 
         self.L = 2*Nx*Ny
         self.coords_pts = np.zeros((self.L, 2), np.float64)
