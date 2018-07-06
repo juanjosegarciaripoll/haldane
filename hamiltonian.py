@@ -89,7 +89,7 @@ class OpenHamiltonian(object):
             amp_second_neigh_B = np.array(
                 [tmp, np.conj(tmp), tmp, np.conj(tmp), tmp, np.conj(tmp)]
                 )
-            amp_second_neigh_A = amp_second_neigh_B
+            amp_second_neigh_A = np.conj(amp_second_neigh_B)
 
         # Add the hoppings to A.
         for i in range(self.lattice.L):
