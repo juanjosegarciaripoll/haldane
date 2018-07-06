@@ -124,21 +124,12 @@ class OpenHamiltonian(object):
 
         """
         # Initial and final coordinates.
-        ic = self.lattice.index_to_position(i)
+        ic = self.lattice.lat_coords[i]
         jc = ic + delta
         j = self.lattice.position_to_index(jc)
 
-        not_crosses_boundary = True
-        if isinstance(self.lattice, OpenLattice):
-            Nx = self.lattice.Nx
-            Ny = self.lattice.Ny
-            not_crosses_boundary = ((0 <= jc[0] <= Nx) and (0 <= jc[1] <= Ny)
-                                    and (0 <= j < self.lattice.L))
-        elif isinstance(self.lattice, CircularLattice):
-            if j < 0:
-                not_crosses_boundary = False
-
-        if not_crosses_boundary:
+        # If jc is outside the lattice, j == -1. We avoid these cases.
+        if j >= 0:
             self.A[j, i] += amp
 
         return

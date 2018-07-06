@@ -54,7 +54,8 @@ class OpenLattice(object):
                 n (int): position within unit cell: 0 for A, 1 for B.
 
         Returns:
-            i (int): index of the position.
+            i (int): index of the position, -1 if position is not in
+                the lattice.
 
         Examples:
             >>> lat = OpenLattice(4, 4)
@@ -87,32 +88,68 @@ class OpenLattice(object):
         else:
             return -1
 
+
+class CircularLattice(object):
+    """Circular honeycomb lattice with open boundary conditions.
+
+    Attributes:
+        r (int): distance in lattice units from the center to the
+            furthest lattice point.
+        L (int): total number of sites/lattice length.
+        lat_coords (2darray of ints): lattice coordinates of every
+            point (x, y posititions and displacement inside the unit
+            cell).
+        xy_coords (2darray of floats): real space coordinates of every
+            point.
+        first_neigh_A, first_neigh_B (list of 1darrays of ints):
+            directions of the hopping amplitudes to first neighbors.
+        second_neigh (list of 1darrays of ints): directions of the
+            hopping amplitudes to second neighbors.
+
+    """
+
+    def __init__(self, r):
+        """Initialize class."""
+        self.r = r
+
+        # Start with a very big diamond lattice to prune.
+        big_lat = OpenLattice(40, 40)
+        center = (big_lat.xy_coords[0] + big_lat.xy_coords[-1])/2
+        ix_pts = np.nonzero(
+            np.linalg.norm(big_lat.xy_coords - center, axis=1) < self.r
+            )[0]
+        self.L = np.size(ix_pts)
+        self.xy_coords = big_lat.xy_coords[ix_pts]
+
+        self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
+        self.first_neigh_B = np.array([[0, 0, -1], [1, 0, -1], [0, 1, -1]])
+        self.second_neigh = np.array([[0, 1, 0], [1, 0, 0], [1, -1, 0],
+                                      [0, -1, 0], [-1, 0, 0], [-1, 1, 0]])
+
+    def position_to_index(self, pos):
+        """Return the index of a position [x, y, z].
+
+        Args:
+            pos: 1darray with the coordinates: [x, y, n].
+                x, y (int): coordinates of the unit cell.
+                n (int): position within unit cell: 0 for A, 1 for B.
+
+        Returns:
+            i (int): index of the position, -1 if position is not in
+                the lattice.
+
+        """
+        tmp = np.linalg.norm(self.lat_coords - pos, axis=1)
+        if np.any(np.isclose(tmp, 0)):
+            return np.argmin(tmp)
+        else:
+            return -1
+
     def index_to_position(self, i):
         """Return a list with the coordinates of a position.
 
         Args:
             i (int): index.
 
-        Returns:
-            (1darray of ints): [x, y, n], where:
-                x, y: coordinates of the unit cell.
-                n: position within the unit cell: 0 for A, 1 for B.
-
-        Examples:
-            >>> lat = OpenLattice(4, 4)
-            >>> lat.index_to_position(1)
-            array([0, 0, 1])
-            >>> lat.index_to_position(2)
-            array([1, 0, 0])
-            >>> lat.index_to_position(5)
-            array([2, 0, 1])
-            >>> lat.index_to_position(14)
-            array([3, 1, 0])
-            >>> lat.index_to_position(19)
-            array([1, 2, 1])
-            >>> lat.index_to_position(26)
-            array([1, 3, 0])
-            >>> lat.index_to_position(30)
-            array([3, 3, 0])
         """
         return self.lat_coords[i]
