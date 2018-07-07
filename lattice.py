@@ -119,7 +119,10 @@ class CircularLattice(object):
             np.linalg.norm(big_lat.xy_coords - center, axis=1) < self.r
             )[0]
         self.L = np.size(ix_pts)
+<<<<<<< HEAD
         self.lat_coords = big_lat.lat_coords[ix_pts]
+=======
+>>>>>>> bf3982a3f0fe6ce02a8d49a78bac08bcc43bdda1
         self.xy_coords = big_lat.xy_coords[ix_pts]
 
         self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
