@@ -120,6 +120,7 @@ class CircularLattice(object):
             )[0]
         self.L = np.size(ix_pts)
         self.xy_coords = big_lat.xy_coords[ix_pts]
+        self.lat_coords = big_lat.lat_coords[ix_pts]
 
         self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
         self.first_neigh_B = np.array([[0, 0, -1], [1, 0, -1], [0, 1, -1]])
@@ -144,12 +145,3 @@ class CircularLattice(object):
             return np.argmin(tmp)
         else:
             return -1
-
-    def index_to_position(self, i):
-        """Return a list with the coordinates of a position.
-
-        Args:
-            i (int): index.
-
-        """
-        return self.lat_coords[i]
