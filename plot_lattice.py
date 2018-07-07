@@ -15,7 +15,7 @@ def plot_voronoi(lattice, data, do_plot=True, colormap='Blues'):
         data (1darray of floats): data to plot on the lattice points.
 
     """
-    vor = Voronoi(lattice.coords_pts)
+    vor = Voronoi(lattice.xy_coords)
     voronoi_plot_2d(vor, show_vertices=False, show_points=False,
                     line_alpha=0.1)
 
