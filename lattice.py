@@ -37,7 +37,7 @@ class OpenLattice(object):
         self.xy_coords = np.array([
             (3/2*(self.lat_coords[:, 0] + self.lat_coords[:, 1])
              + self.lat_coords[:, 2]),
-            -np.sqrt(3)/2*(-self.lat_coords[:, 0] + self.lat_coords[:, 1])
+            np.sqrt(3)/2*(-self.lat_coords[:, 0] + self.lat_coords[:, 1])
         ]).T
 
         self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
@@ -145,3 +145,31 @@ class CircularLattice(object):
             return np.argmin(tmp)
         else:
             return -1
+
+
+class SquareLattice(object):
+    """Square lattice.
+
+    Attributes:
+        Nx, Ny (int): length and width in unit cells of the lattice.
+        L (int): total number of sites/lattice length.
+        lat_coords (2darray of ints): lattice coordinates of every
+            point (x, y posititions and displacement inside the unit
+            cell).
+
+    """
+
+    def __init__(self, Nx, Ny):
+        """Initialize class."""
+        self.Nx = Nx
+        self.Ny = Ny
+
+        self.L = Nx*Ny
+        self.lat_coords = np.array(
+            [np.kron(np.ones(self.Ny, np.int64), np.arange(self.Nx)),
+             np.kron(np.arange(self.Ny), np.ones(self.Nx, np.int64)),
+             ]).T
+        self.xy_coords = np.array([
+            2*np.pi/3*(self.lat_coords[:, 0] + self.lat_coords[:, 1]),
+            2*np.pi/np.sqrt(3)*(-self.lat_coords[:, 0] + self.lat_coords[:, 1])
+        ]).T
