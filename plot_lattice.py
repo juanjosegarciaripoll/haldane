@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
 
-def plot_voronoi(lattice, data, do_plot=True, colormap='Blues'):
+def plot_voronoi(lattice, data, colormap='Blues'):
     """Plot data on a Voronoi diagram of the lattice.
 
     Args:
@@ -15,10 +15,9 @@ def plot_voronoi(lattice, data, do_plot=True, colormap='Blues'):
         data (1darray of floats): data to plot on the lattice points.
 
     """
-    vor = Voronoi(lattice.xy_coords)
-    voronoi_plot_2d(vor, show_vertices=False, show_points=False,
-                    line_alpha=0.1)
+    plt.figure(figsize=(20, 12))
 
+    vor = Voronoi(lattice.xy_coords)
     norm = mpl.colors.Normalize(vmin=np.min(data), vmax=np.max(data),
                                 clip=True)
     if colormap == 'Blues':
@@ -31,6 +30,5 @@ def plot_voronoi(lattice, data, do_plot=True, colormap='Blues'):
             polygon = [vor.vertices[i] for i in region]
             plt.fill(*zip(*polygon), color=mapper.to_rgba(data[r]))
 
-    if do_plot:
-        plt.show()
+    # plt.show()
     return
