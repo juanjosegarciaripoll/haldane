@@ -39,6 +39,9 @@ class OpenLattice(object):
              + self.lat_coords[:, 2]),
             np.sqrt(3)/2*(-self.lat_coords[:, 0] + self.lat_coords[:, 1])
         ]).T
+        # Center the real space coordinates at the origin.
+        center = (self.xy_coords[0] + self.xy_coords[-1])/2
+        self.xy_coords -= center
 
         self.first_neigh_A = np.array([[0, 0, 1], [-1, 0, 1], [0, -1, 1]])
         self.first_neigh_B = np.array([[0, 0, -1], [1, 0, -1], [0, 1, -1]])
@@ -147,29 +150,37 @@ class CircularLattice(object):
             return -1
 
 
-class SquareLattice(object):
-    """Square lattice.
+class BrillouinLattice(object):
+    """Brillouin lattice of a sublattice of the honeycomb lattice.
 
     Attributes:
-        Nx, Ny (int): length and width in unit cells of the lattice.
+        Mx, My (int): length and width in unit cells of the Brillouin
+            lattice.
         L (int): total number of sites/lattice length.
         lat_coords (2darray of ints): lattice coordinates of every
             point (x, y posititions and displacement inside the unit
             cell).
+        xy_coords (2darray of floats): real space coordinates of every
+            point.
 
     """
 
-    def __init__(self, Nx, Ny):
+    def __init__(self, Mx, My):
         """Initialize class."""
-        self.Nx = Nx
-        self.Ny = Ny
+        self.Mx = Mx
+        self.My = My
 
-        self.L = Nx*Ny
+        self.L = Mx*My
         self.lat_coords = np.array(
-            [np.kron(np.ones(self.Ny, np.int64), np.arange(self.Nx)),
-             np.kron(np.arange(self.Ny), np.ones(self.Nx, np.int64)),
+            [np.kron(np.ones(My), np.arange(Mx))/Mx,
+             np.kron(np.arange(My), np.ones(Mx))/My,
              ]).T
+        gx = 2*np.pi*np.array([1/3, -1/np.sqrt(3)])
+        gy = 2*np.pi*np.array([1/3, 1/np.sqrt(3)])
         self.xy_coords = np.array([
-            2*np.pi/3*(self.lat_coords[:, 0] + self.lat_coords[:, 1]),
-            2*np.pi/np.sqrt(3)*(-self.lat_coords[:, 0] + self.lat_coords[:, 1])
+            gx[0]*self.lat_coords[:, 0] + gy[0]*self.lat_coords[:, 1],
+            gx[1]*self.lat_coords[:, 0] + gy[1]*self.lat_coords[:, 1]
         ]).T
+        # Center the real space coordinates at the origin.
+        center = (self.xy_coords[0] + self.xy_coords[-1])/2
+        self.xy_coords -= center
