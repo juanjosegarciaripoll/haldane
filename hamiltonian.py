@@ -6,9 +6,6 @@ the extended Hubbard interaction matrix.
 
 import numpy as np
 
-from lattice import OpenLattice
-from circular_lattice import CircularLattice
-
 
 class OpenHamiltonian(object):
     """Matrices of a Haldane Hamiltonian with open boundaries.

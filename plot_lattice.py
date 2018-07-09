@@ -1,7 +1,7 @@
 """Different plot scripts for the Honeycomb lattice."""
 
 import numpy as np
-from scipy.spatial import Voronoi, voronoi_plot_2d
+from scipy.spatial import Voronoi
 import matplotlib as mpl
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
