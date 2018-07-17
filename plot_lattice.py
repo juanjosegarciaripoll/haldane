@@ -33,7 +33,7 @@ def plot_voronoi(lattice, data, colormap='binary', figsize=(20, 12),
     disp_A = np.array([[-1, 0], [1/2, np.sqrt(3)/2], [1/2, -np.sqrt(3)/2]])
     disp_B = np.array([[1, 0], [-1/2, np.sqrt(3)/2], [-1/2, -np.sqrt(3)/2]])
     for i in range(lattice.L):
-        if i%2 == 0:
+        if lattice.lat_coords[i, 2] == 0:
             fill_coords[i] = lattice.xy_coords[i] + disp_A
         else:
             fill_coords[i] = lattice.xy_coords[i] + disp_B

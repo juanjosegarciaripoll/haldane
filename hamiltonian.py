@@ -90,7 +90,7 @@ class OpenHamiltonian(object):
 
         # Add the hoppings to A.
         for i in range(self.lattice.L):
-            if i%2 == 0:
+            if self.lattice.lat_coords[i, 2] == 0:
                 # Sublattice A.
                 for (delta, amp) in zip(self.lattice.first_neigh_A,
                                         amp_first_neigh_A):
