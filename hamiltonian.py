@@ -18,7 +18,7 @@ class OpenHamiltonian(object):
     """
 
     def __init__(self, lattice, hopping_params, hoppings_type,
-                 trap_potential, lattice_imbalance):
+                 trap_potential, lattice_imbalance, inhomogeneity=None):
         """Initialize the Hamiltonian class.
 
         Args:
@@ -37,6 +37,11 @@ class OpenHamiltonian(object):
                 x the distance of a point in the lattice to the center.
             lattice_imbalance (float): energy difference between the
                 two sublattices.
+            inhomogeneity (tuple of floats): distance from the center
+                of the origin of the inhomogeneity, angle of the origin
+                of the inhomogeneity with respect to the xy axis,
+                strength, and variance of the inhomogeneity.
+
         """
         self.lattice = lattice
         self.A = np.zeros((self.lattice.L, self.lattice.L), np.complex128)
@@ -44,7 +49,7 @@ class OpenHamiltonian(object):
                      trap_potential, lattice_imbalance)
 
     def build_A(self, hopping_params, hoppings_type,
-                trap_potential, lattice_imbalance):
+                trap_potential, lattice_imbalance, inhomogeneity=None):
         """Compute the hopping matrix A."""
         # Diagonal terms.
         # Harmonic trap.
@@ -58,6 +63,18 @@ class OpenHamiltonian(object):
             for i in range(self.lattice.L):
                 self.A[i, i] += (lattice_imbalance if i%2 == 0
                                  else -lattice_imbalance)
+
+        # Inhomogeneity.
+        if inhomogeneity is not None:
+            R_inh = inhomogeneity[0]
+            theta_inh = inhomogeneity[1]
+            xy_inh = np.array([R_inh*np.cos(theta_inh),
+                               R_inh*np.sin(theta_inh)])
+            s_inh = inhomogeneity[2]
+            var_inh = inhomogeneity[3]
+
+            for i in range(self.lattice.L):
+                self.A[i, i] += s_inh*np.exp(np.linalg.norm(self.lattice.xy_coords[i] - xy_inh)**2/(2*var_inh**2))
 
         # Hopping terms.
         # Assert hoppings are valid.
