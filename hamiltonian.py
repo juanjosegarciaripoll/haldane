@@ -46,7 +46,7 @@ class OpenHamiltonian(object):
         self.lattice = lattice
         self.A = np.zeros((self.lattice.L, self.lattice.L), np.complex128)
         self.build_A(hopping_params, hoppings_type,
-                     trap_potential, lattice_imbalance)
+                     trap_potential, lattice_imbalance, inhomogeneity)
 
     def build_A(self, hopping_params, hoppings_type,
                 trap_potential, lattice_imbalance, inhomogeneity=None):
@@ -74,7 +74,7 @@ class OpenHamiltonian(object):
             var_inh = inhomogeneity[3]
 
             for i in range(self.lattice.L):
-                self.A[i, i] += s_inh*np.exp(np.linalg.norm(self.lattice.xy_coords[i] - xy_inh)**2/(2*var_inh**2))
+                self.A[i, i] += s_inh*np.exp(-np.linalg.norm(self.lattice.xy_coords[i] - xy_inh)**2/(2*var_inh**2))
 
         # Hopping terms.
         # Assert hoppings are valid.
