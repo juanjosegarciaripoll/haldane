@@ -1,6 +1,7 @@
 # Temporary:
 images
 *.ipynb
+main.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
